@@ -21,37 +21,28 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.utils.memory.serial;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import java.io.IOException;
+import java.io.OutputStream;
 
-public abstract class RuntimeResourceProvider {
+public abstract class MemoryOutputStream extends OutputStream implements MemoryWriter {
+    public static final long ID_SIZE = 8;
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
+    public void writeObj(MemorySerializable obj) throws IOException {
+        ensureOpen();
+        if (obj == null) {
+            // Handle null values
+            this.writeObj(NullWrapper.NULL);
+            return;
+        }
+        long id = MemorySerializableRegistry.getIdOfClass(obj.getClass());
+        if (id == 0)
+            throw new IllegalArgumentException("ID was not registered");
+        byte[] bytes = MemoryUtils.toBytes(id);
+        write(bytes, 0, 8);
+        obj.writeObj(this);
     }
 
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
-    }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
+    protected abstract void ensureOpen() throws IOException;
 }

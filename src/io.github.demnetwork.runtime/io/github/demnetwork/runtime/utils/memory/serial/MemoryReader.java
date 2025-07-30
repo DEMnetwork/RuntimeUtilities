@@ -21,37 +21,13 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.utils.memory.serial;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import java.io.IOException;
 
-public abstract class RuntimeResourceProvider {
+public abstract interface MemoryReader {
+    public abstract MemorySerializable readObj() throws IOException, InstantiationException;
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
-    }
-
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
-    }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
+    public abstract <T extends MemorySerializable> T readAndInterpretAs(Class<T> cls)
+            throws IOException, InstantiationException;
 }

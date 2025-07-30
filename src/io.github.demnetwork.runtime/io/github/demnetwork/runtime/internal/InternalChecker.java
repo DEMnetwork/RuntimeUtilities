@@ -21,37 +21,37 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.internal;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import io.github.demnetwork.runtime.internal.secret.Checker;
 
-public abstract class RuntimeResourceProvider {
+public final class InternalChecker {
+    private static final InternalChecker INSTANCE = new InternalChecker();
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
-    }
-
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
+    private InternalChecker() {
 
     }
 
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
+    public static InternalChecker getInternalChecker() {
+        return INSTANCE;
+    }
 
-    // public abstract Object[] resolveDependancy(String name); Unused
+    public boolean chkClassLoader(Class<?> cls, ClassLoader cl) {
+        return Checker.chkClassLoader(cls, cl);
+    }
+
+    public <T> boolean chkArray(T[] arr) {
+        if (arr == null)
+            return false;
+        return Checker.chkArray(arr);
+    }
+
+    public boolean chkArray(Class<?>[] arr, ClassLoader cl) {
+        return Checker.chkArray(arr, cl);
+    }
+
+    public boolean strictContainsObject(Object[] arr, Object obj) {
+        return ((obj == null && (arr != null && Object.class.isAssignableFrom(arr.getClass().getComponentType())))
+                || (obj != null && Checker.strictContainsObject(arr, obj)));
+    }
 }

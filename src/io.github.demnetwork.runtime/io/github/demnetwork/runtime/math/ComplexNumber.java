@@ -27,9 +27,11 @@ import java.util.Arrays;
 
 import io.github.demnetwork.runtime.access.EnforceModifiers;
 import io.github.demnetwork.runtime.access.InvisibleField;
+import io.github.demnetwork.runtime.misc.serial.FastDeserializer;
+import io.github.demnetwork.runtime.misc.serial.FastSerializable;
 import io.github.demnetwork.runtime.utils.Table;
 
-public final class ComplexNumber implements Comparable<ComplexNumber> {
+public final class ComplexNumber implements Comparable<ComplexNumber>, FastSerializable {
     @EnforceModifiers
     private final double a;
     @EnforceModifiers
@@ -200,5 +202,10 @@ public final class ComplexNumber implements Comparable<ComplexNumber> {
             return 1;
         } else
             return -1;
+    }
+
+    @Override
+    public FastDeserializer<ComplexNumber> getDeserializer() {
+        return FastDeserializer.newFastDerializer(ComplexNumber.class);
     }
 }

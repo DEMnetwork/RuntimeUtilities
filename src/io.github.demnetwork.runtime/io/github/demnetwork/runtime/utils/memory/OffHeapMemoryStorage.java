@@ -24,7 +24,6 @@
 package io.github.demnetwork.runtime.utils.memory;
 
 import sun.misc.Unsafe;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -34,8 +33,10 @@ import java.lang.ref.Cleaner.Cleanable;
 import java.lang.reflect.*;
 import java.nio.ByteOrder;
 import java.util.Optional;
+import io.github.demnetwork.runtime.internal.BuildData;
 
-public sealed class OffHeapMemoryStorage implements AutoCloseable permits ReutilizableOffHeapMemoryStorage {
+public sealed class OffHeapMemoryStorage implements AutoCloseable
+        permits ReutilizableOffHeapMemoryStorage, SlicedOffHeapMemoryStorage, FileMappedOffHeapMemoryStorage {
     protected static final Unsafe UNSAFE;
     static {
         try {
@@ -114,6 +115,12 @@ public sealed class OffHeapMemoryStorage implements AutoCloseable permits Reutil
         }
     }
 
+    OffHeapMemoryStorage(long baseAddr, long size) {
+        this.cleanable = null;
+        this.baseAddr = baseAddr;
+        this.size = size;
+    }
+
     /**
      * Creates a new OffHeapMemoryStorage allocating the amount bytes specified in
      * {@link #size} in the off-heap
@@ -162,7 +169,7 @@ public sealed class OffHeapMemoryStorage implements AutoCloseable permits Reutil
         this.monitor.onClose();
     }
 
-    protected final void ensureOpen() {
+    protected void ensureOpen() {
         if (closed)
             throw new IllegalStateException("The Memory Storage closed");
     }
@@ -380,10 +387,17 @@ public sealed class OffHeapMemoryStorage implements AutoCloseable permits Reutil
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (!closed)
+            if (!closed) {
+                if (BuildData.CURRENT.getDebugStatus())
+                    System.out.println("Finalizer got called");
                 close();
-        } catch (Throwable t) {
 
+            }
+        } catch (Throwable t) {
+            if (BuildData.CURRENT.getDebugStatus()) {
+                System.out.println("close() threw an exception (Inside finalizer).");
+                t.printStackTrace(System.out);
+            }
         }
         super.finalize();
     }
@@ -476,7 +490,7 @@ public sealed class OffHeapMemoryStorage implements AutoCloseable permits Reutil
         if (!f.exists() || f.isDirectory())
             throw new IOException("The File does not exist or it is a directory");
         FileInputStream fis = new FileInputStream(f);
-        if (srcBytes >= 0x1000) {
+        if (srcBytes >= 0x1000L) {
             fis.getChannel().position(srcOffset);
             os.setOffset(destOffset);
             byte[] buff = new byte[4096];
@@ -499,5 +513,30 @@ public sealed class OffHeapMemoryStorage implements AutoCloseable permits Reutil
         }
         fis.close();
         os.close();
+    }
+
+    public final SlicedOffHeapMemoryStorage slice(long offset, long size) {
+        ensureOpen();
+        if (this.size < offset + size)
+            throw new IllegalArgumentException("Illegal Offset or size");
+        if (offset < 0)
+            throw new IllegalArgumentException("Negative Offset");
+        if (size < 0)
+            throw new IllegalArgumentException("Negative Size");
+        return slice0(offset, size);
+    }
+
+    SlicedOffHeapMemoryStorage slice0(long offset, long size) {
+        return new SlicedOffHeapMemoryStorage(this, size, offset);
+    }
+
+    public long getBaseAddress() {
+        return this.baseAddr;
+    }
+
+    @Override
+    public String toString() {
+        return "OffHeapMemoryStorage{baseAddr=" + this.baseAddr + "; size=" + this.size + "; type="
+                + super.getClass() + "}";
     }
 }

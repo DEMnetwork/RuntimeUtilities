@@ -21,37 +21,34 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.tests;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import java.io.File;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 
-public abstract class RuntimeResourceProvider {
+import io.github.demnetwork.runtime.inject.InjectedClassLoader;
+import io.github.demnetwork.runtime.utils.memory.OffHeapMemoryStorage;
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
-    }
-
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
+public class Main3 {
+    public static void main(String[] args) throws Exception {
+        InjectedClassLoader icl = new InjectedClassLoader(new File("./myJar.jar").toURI().toURL(),
+                new File("./sjdb-v1.0.0.jar").toURI().toURL());
+        Class<?> clazz = icl.loadClass("Test1");
+        Object test1obj = clazz.getConstructor().newInstance();
+        try {
+            clazz.getDeclaredMethod("main").invoke(test1obj);
+        } catch (InvocationTargetException e) {
+            OffHeapMemoryStorage storage = new OffHeapMemoryStorage(8192);
+            PrintStream ps = new PrintStream(storage.toOutputStream(false));
+            e.printStackTrace(ps);
+            ps.close();
+            File f = new File("stackTrace.txt");
+            if (!f.exists())
+                f.createNewFile();
+            storage.toFile(f);
+            storage.close();
         }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
+        icl.close();
     }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
 }

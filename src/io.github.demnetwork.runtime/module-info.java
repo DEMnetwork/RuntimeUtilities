@@ -26,13 +26,20 @@ module io.github.demnetwork.runtime {
     exports io.github.demnetwork.runtime.classloader;
     exports io.github.demnetwork.runtime.utils;
     exports io.github.demnetwork.runtime.misc;
-    exports io.github.demnetwork.runtime.utils.memory;
+    exports io.github.demnetwork.runtime.utils.memory; // Memory-related stuff
     exports io.github.demnetwork.runtime.utils.wrapper;
     exports io.github.demnetwork.runtime.misc.serial;
     exports io.github.demnetwork.runtime.math;
     exports io.github.demnetwork.runtime.internal;
     exports io.github.demnetwork.runtime.inject;
+    exports io.github.demnetwork.runtime.inject.annotation;
+    exports io.github.demnetwork.runtime.inject.annotation.lifecycle;
+    exports io.github.demnetwork.runtime.internal.inject;
+    exports io.github.demnetwork.runtime.utils.memory.serial; // Serialization for Memory
+    exports io.github.demnetwork.runtime.utils.memory.reflect; // Reflection for Memory
 
+    opens io.github.demnetwork.runtime.inject.annotation;
+    opens io.github.demnetwork.runtime.inject.annotation.lifecycle;
     opens io.github.demnetwork.runtime.misc.serial;
     opens io.github.demnetwork.runtime.misc;
     opens io.github.demnetwork.runtime.utils;
@@ -41,6 +48,8 @@ module io.github.demnetwork.runtime {
     opens io.github.demnetwork.runtime.access;
     opens io.github.demnetwork.runtime.classloader;
     opens io.github.demnetwork.runtime.math;
+    opens io.github.demnetwork.runtime.internal.secret; // For reflective usage of Secret API; Secret API can be
+                                                        // unstable
 
     requires java.base;
     requires jdk.unsupported;

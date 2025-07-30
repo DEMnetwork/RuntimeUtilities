@@ -21,37 +21,28 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.internal.secret;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
-
-public abstract class RuntimeResourceProvider {
-
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
+public class ArrayJointer {
+    private ArrayJointer() {
     }
 
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
+    /**
+     * The caller should clone the arrays before passing to the method if they come
+     * from an external source
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] jointArrays(T[] a, T[] b) {
+        T[] arr = (T[]) new Object[a.length + b.length];
+        int i = 0;
+        for (T o : a) {
+            arr[i] = o;
+            i++;
         }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
+        for (T o : b) {
+            arr[i] = o;
+            i++;
         }
-
+        return arr;
     }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
 }

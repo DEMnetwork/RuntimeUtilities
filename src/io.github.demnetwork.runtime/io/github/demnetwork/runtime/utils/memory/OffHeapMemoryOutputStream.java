@@ -26,10 +26,10 @@ package io.github.demnetwork.runtime.utils.memory;
 import static io.github.demnetwork.runtime.utils.memory.OffHeapMemoryStorage.UNSAFE;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import io.github.demnetwork.runtime.utils.memory.serial.MemoryOutputStream;
 
-public final class OffHeapMemoryOutputStream extends OutputStream {
+public final class OffHeapMemoryOutputStream extends MemoryOutputStream {
     static final int BYTE_MASK = 0xFF;
     private final WeakReference<OffHeapMemoryStorage> ref;
     private long offset = 0;
@@ -74,7 +74,7 @@ public final class OffHeapMemoryOutputStream extends OutputStream {
         }
     }
 
-    private void ensureOpen() throws IOException {
+    protected void ensureOpen() throws IOException {
         if (closed)
             throw new IOException("This OutputStream is already closed");
     }

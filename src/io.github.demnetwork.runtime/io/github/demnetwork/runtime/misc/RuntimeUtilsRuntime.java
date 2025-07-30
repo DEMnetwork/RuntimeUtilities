@@ -59,7 +59,7 @@ public final class RuntimeUtilsRuntime {
     }
 
     private static final class BuiltinProvider extends RuntimeResourceProvider {
-        private static final File PATH = new File("./");
+        // private static final File PATH = new File("./");
 
         @Override
         public Class<? extends Implentation> getImpl(int id) {
@@ -95,26 +95,26 @@ public final class RuntimeUtilsRuntime {
             }
         }
 
-        @Override
-        public Object[] resolveDependancy(String name) {
-            return new Object[] { name, lookup(PATH, name), this };
-        }
+        // @Override
+        // public Object[] resolveDependancy(String name) {
+        // return new Object[] { name, lookup(PATH, name), this };
+        // }
 
-        private File lookup(File path, String name) {
-            if (name.contains("/") || name.contains("\\"))
-                throw new IllegalArgumentException("Name Cannot have directory seperators");
-            File[] fls = path.listFiles();
-            for (File f : fls) {
-                if (f.isDirectory()) {
-                    return this.lookup(f, name);
-                } else {
-                    if (f.getName().equals(name)) {
-                        return f;
-                    }
-                }
-            }
-            throw new NoSuchElementException("Unable to find dependancy");
-        }
+        // private File lookup(File path, String name) {
+        // if (name.contains("/") || name.contains("\\"))
+        // throw new IllegalArgumentException("Name Cannot have directory seperators");
+        // File[] fls = path.listFiles();
+        // for (File f : fls) {
+        // if (f.isDirectory()) {
+        // return this.lookup(f, name);
+        // } else {
+        // if (f.getName().equals(name)) {
+        // return f;
+        // }
+        // }
+        // }
+        // throw new NoSuchElementException("Unable to find dependancy");
+        // }
 
     }
 
@@ -259,6 +259,7 @@ public final class RuntimeUtilsRuntime {
         public String getName() {
             return "RCGDefaultImpl";
         }
+
     }
 
     public static void deleteFile(File f) throws IOException {

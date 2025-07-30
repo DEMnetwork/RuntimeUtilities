@@ -21,37 +21,14 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.inject;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
-
-public abstract class RuntimeResourceProvider {
-
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
+public class InjectionException extends Exception {
+    public InjectionException(String msg) {
+        super(msg);
     }
 
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
+    public InjectionException(String msg, Throwable cause) {
+        super(msg, cause);
     }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
 }

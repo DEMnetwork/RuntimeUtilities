@@ -69,7 +69,6 @@ public abstract class FastDeserializer<T extends FastSerializable> {
                 // System.out.println("Redirect " + clazz.getName() + " <<< " +
                 // this.getClass().getName());
                 try {
-                    // System.out.println(type.getName());
                     this.redirect = ((FastSerializable) UNSAFE.allocateInstance(type)).getDeserializer();
                 } catch (Exception e) {
                     throw new IllegalArgumentException(

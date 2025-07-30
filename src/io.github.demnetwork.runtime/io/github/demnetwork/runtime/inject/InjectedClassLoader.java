@@ -35,6 +35,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class loader loads classes from a primary JAR and its dependencies.
@@ -62,7 +63,7 @@ public class InjectedClassLoader extends ClassLoader implements Closeable {
             for (URL url : dependencyJars) {
                 if (url != null) {
                     File f = new File(url.toURI());
-                    if (f.exists())
+                    if (f.exists() && !f.isDirectory())
                         list.add(new JarFile(f));
                 }
             }
@@ -87,12 +88,13 @@ public class InjectedClassLoader extends ClassLoader implements Closeable {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        return this.findClass(name);
+        return this.loadClass(name, false);
     }
 
     @Override
     public Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException {
+        ensureOpen();
         Class<?> cls = findClass(name);
         if (resolve)
             super.resolveClass(cls);
@@ -122,15 +124,19 @@ public class InjectedClassLoader extends ClassLoader implements Closeable {
         } else {
             for (JarFile f : arr) {
                 e = f.getEntry(ClassName);
-                if (e != null)
+                if (e != null) {
                     if (e.isDirectory())
                         throw new ClassNotFoundException("Unable to find class(The target class is a directory)");
-                try {
-                    Class<?> cls = defCls(className, ClassName, e, f);
-                    loadedClasses.put(className, cls);
-                    return cls;
-                } catch (Exception ex) {
-                    exs.add(ex);
+                    try {
+                        Class<?> cls = defCls(className, ClassName, e, f);
+                        loadedClasses.put(className, cls);
+                        return cls;
+                    } catch (Exception ex) {
+                        exs.add(ex);
+                    }
+                } else {
+                    exs.add(new ClassNotFoundException(
+                            "Unable to find class \'" + className + "\' at \"" + f.getName() + "\""));
                 }
             }
         }
@@ -177,6 +183,18 @@ public class InjectedClassLoader extends ClassLoader implements Closeable {
             return (loadedClasses.isEmpty());
         } catch (UnsupportedOperationException e) {
             return false;
+        }
+    }
+
+    public Optional<Class<?>> optionalClass(String name) {
+        return this.optionalClass(name, false);
+    }
+
+    public Optional<Class<?>> optionalClass(String name, boolean resolve) {
+        try {
+            return Optional.of(loadClass(name, resolve));
+        } catch (ClassNotFoundException e) {
+            return Optional.empty();
         }
     }
 }

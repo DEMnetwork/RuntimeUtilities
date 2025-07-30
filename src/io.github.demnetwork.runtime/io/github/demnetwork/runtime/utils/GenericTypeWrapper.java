@@ -46,7 +46,7 @@ public final class GenericTypeWrapper {
         gt = (GenericType) o;
         String code = o.getClass().getName();
         Type[] arr = gt.getTypeArgs();
-        System.out.println(Arrays.toString(arr));
+        // System.out.println(Arrays.toString(arr));
         for (int i = 0; i < arr.length; i++) {
             code += arr[i].getTypeName();
         }

@@ -21,37 +21,21 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.internal;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public abstract class RuntimeResourceProvider {
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.TYPE)
+/**
+ * Me, I don't like Lambdas
+ * <p>
+ * The author's preference for Inner Classes(And Annonimous Inner Classes) over
+ * Lambdas
+ */
+public @interface MeIDontLikeLambdas {
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
-    }
-
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
-    }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
 }

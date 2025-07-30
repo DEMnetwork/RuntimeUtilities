@@ -26,10 +26,11 @@ package io.github.demnetwork.runtime.utils.memory;
 import static io.github.demnetwork.runtime.utils.memory.OffHeapMemoryStorage.UNSAFE;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import io.github.demnetwork.runtime.utils.memory.serial.MemoryInputStream;
 
-public final class OffHeapMemoryInputStream extends InputStream {
+public final class OffHeapMemoryInputStream extends MemoryInputStream {
     private final WeakReference<OffHeapMemoryStorage> ref;
     private long offset = 0;
     private final boolean linked;
@@ -47,7 +48,7 @@ public final class OffHeapMemoryInputStream extends InputStream {
             offHeapMemoryStorage.monitor.addStream(this);
     }
 
-    private void ensureOpen() throws IOException {
+    protected void ensureOpen() throws IOException {
         if (closed)
             throw new IOException("This InputStream is already closed");
     }
@@ -145,6 +146,21 @@ public final class OffHeapMemoryInputStream extends InputStream {
             storage.close();
         }
         ref.clear();
+    }
+
+    @Override
+    public long transferTo(OutputStream os) throws IOException {
+        ensureOpen();
+        long t = 0;
+        byte[] buf = new byte[4096];
+        while (this.available() > 0) {
+            int r = this.read(buf, 0, 4096);
+            if (r == -1)
+                break;
+            os.write(buf, 0, r);
+            t += r;
+        }
+        return t;
     }
 
     @Deprecated

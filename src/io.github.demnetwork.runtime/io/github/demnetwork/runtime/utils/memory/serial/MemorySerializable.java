@@ -21,37 +21,20 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.utils.memory.serial;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import java.io.IOException;
 
-public abstract class RuntimeResourceProvider {
+public abstract interface MemorySerializable {
+    public abstract void writeObj(MemoryOutputStream mos) throws IOException;
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
-    }
-
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
-    }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
+    /**
+     * 
+     * @implSpec Implementation should not rely upon State
+     * @param mis MemoryInputStream containing data
+     * @return The Deserialized Object(can be <code>this</code> instance if writes
+     *         to this instance, or a constant)
+     * @throws IOException If an I/O operation went wrong
+     */
+    public abstract MemorySerializable readObj(MemoryInputStream mis) throws IOException;
 }

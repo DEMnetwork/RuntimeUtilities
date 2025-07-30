@@ -21,37 +21,36 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.utils.memory.serial;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
+import java.io.IOException;
 
-public abstract class RuntimeResourceProvider {
+/** An Wrapper Representing <code>null</code> */
+public final class NullWrapper implements Wrapper<Object>, MemorySerializable {
+    public static final NullWrapper NULL = new NullWrapper();
 
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
+    private NullWrapper() {
     }
 
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
-        }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
+    @Override
+    public Object getValue() {
+        return null;
     }
 
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
+    @Override
+    public void writeObj(MemoryOutputStream mos) throws IOException {
+        // NOP: No Data to write
+    }
 
-    // public abstract Object[] resolveDependancy(String name); Unused
+    @Override
+    public MemorySerializable readObj(MemoryInputStream mis) throws IOException {
+        // No data to read
+        return NullWrapper.NULL;
+    }
+
+    @Override
+    public boolean equals(Object x) {
+        return (x == NULL);
+    }
+
 }

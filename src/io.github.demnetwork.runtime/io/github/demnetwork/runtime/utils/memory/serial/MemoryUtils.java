@@ -21,37 +21,26 @@
  *   SOFTWARE.
  */
 
-package io.github.demnetwork.runtime.misc;
+package io.github.demnetwork.runtime.utils.memory.serial;
 
-import io.github.demnetwork.runtime.utils.RuntimeClassGenerator;
-
-public abstract class RuntimeResourceProvider {
-
-    protected static final int RCG_IMPL_ID = 104745;
-
-    public abstract Class<? extends Implentation> getImpl(int id);
-
-    public static abstract interface Implentation {
-        public abstract int getID();
-
-        public abstract String getName();
+final class MemoryUtils {
+    public static long toLong(byte[] bytes) {
+        if (bytes == null)
+            throw new NullPointerException();
+        if (bytes.length != 8)
+            throw new IllegalArgumentException();
+        final byte[] longVal = bytes.clone();
+        return ((longVal[0] & 0xFFL) << 56) | ((longVal[1] & 0xFFL) << 48) | ((longVal[2] & 0xFFL) << 40)
+                | ((longVal[3] & 0xFFL) << 32) | ((longVal[4] & 0xFFL) << 24) | ((longVal[5] & 0xFFL) << 16)
+                | ((longVal[6] & 0xFFL) << 8) | ((longVal[7] & 0xFFL) << 0);
     }
 
-    protected static abstract class RCGImpl extends RuntimeClassGenerator implements Implentation {
-
-        protected RCGImpl(String target, String pkg, String className, int Modifiers) {
-            super(target, pkg, className, Modifiers);
+    public static byte[] toBytes(long l) {
+        byte[] result = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            result[i] = (byte) (l & 0xFF);
+            l >>= 8;
         }
-
-        @Override
-        public final int getID() {
-            return RCG_IMPL_ID;
-        }
-
+        return result;
     }
-
-    public abstract Implentation getInstance(Class<? extends Implentation> c, Object[] args)
-            throws InstantiationException;
-
-    // public abstract Object[] resolveDependancy(String name); Unused
 }
