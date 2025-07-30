@@ -4,7 +4,7 @@
 
     <groupId>io.github.demnetwork</groupId>
   <artifactId>runtime-utilities</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 
   <name>RuntimeUtilities</name>
   <description>A Library that allows you to Allocate Off-Heap Memory, Inject Dependancies to JARs, etc.</description>
